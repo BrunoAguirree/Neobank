@@ -1,0 +1,74 @@
+:root {
+  color-scheme: light;
+  --ink: #17211d;
+  --muted: #65746d;
+  --paper: #f7f8f3;
+  --card: #ffffff;
+  --line: #dfe6df;
+  --accent: #216e5a;
+  --accent-dark: #15513f;
+  --accent-soft: #e1f1e8;
+  --warning: #a2471f;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-width: 320px;
+  color: var(--ink);
+  background: radial-gradient(circle at top right, #e9f5ed 0, transparent 36%), var(--paper);
+}
+
+button, input { font: inherit; }
+button { cursor: pointer; }
+
+.app-shell {
+  width: min(100%, 720px);
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: 20px 18px 28px;
+  display: flex;
+  flex-direction: column;
+}
+
+.topbar, .footer, .trust-banner, .form-actions { display: flex; align-items: center; }
+.topbar { justify-content: space-between; margin-bottom: 18px; }
+.brand { color: var(--ink); font-size: 1.3rem; font-weight: 800; letter-spacing: -.04em; text-decoration: none; }
+.brand span { color: var(--accent); }
+.demo-badge { color: var(--accent-dark); background: var(--accent-soft); border-radius: 999px; padding: 7px 11px; font-size: .75rem; font-weight: 700; }
+
+.trust-banner { gap: 9px; border: 1px solid #c9e2d2; border-radius: 12px; padding: 11px 13px; color: var(--accent-dark); background: rgba(225, 241, 232, .72); font-size: .78rem; font-weight: 650; }
+.trust-dot { width: 8px; height: 8px; flex: 0 0 auto; border-radius: 50%; background: #3a9a70; }
+.content { flex: 1; display: flex; align-items: center; padding: 42px 0 28px; }
+.screen { width: 100%; }
+.eyebrow { margin: 0 0 10px; color: var(--accent); font-size: .76rem; font-weight: 800; letter-spacing: .09em; text-transform: uppercase; }
+h1 { max-width: 620px; margin: 0 0 16px; font-size: clamp(2.25rem, 10vw, 4.2rem); line-height: .98; letter-spacing: -.065em; }
+h2 { margin: 0 0 12px; font-size: clamp(1.9rem, 8vw, 3rem); line-height: 1; letter-spacing: -.055em; }
+.lede { max-width: 540px; margin: 0 0 28px; color: var(--muted); font-size: 1.04rem; line-height: 1.55; }
+.name-chip { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 26px; padding: 10px 13px; border: 1px solid var(--line); border-radius: 12px; background: var(--card); font-weight: 700; }
+.avatar { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 9px; color: white; background: var(--accent); font-size: .8rem; }
+.card { padding: 22px; border: 1px solid var(--line); border-radius: 20px; background: var(--card); box-shadow: 0 14px 34px rgba(24, 44, 35, .07); }
+.field { display: grid; gap: 8px; margin-bottom: 18px; }
+label { font-size: .88rem; font-weight: 750; }
+.hint { margin: 0; color: var(--muted); font-size: .78rem; line-height: 1.4; }
+.input-wrap { display: flex; align-items: center; border: 1px solid #bac9bf; border-radius: 12px; background: #fff; transition: border-color .15s, box-shadow .15s; }
+.input-wrap:focus-within { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(33, 110, 90, .12); }
+.currency { padding-left: 14px; color: var(--muted); font-weight: 750; }
+input { width: 100%; min-height: 50px; padding: 10px 14px 10px 8px; border: 0; outline: 0; color: var(--ink); background: transparent; font-size: 1.05rem; }
+.error { min-height: 20px; margin: -7px 0 12px; color: var(--warning); font-size: .82rem; font-weight: 650; }
+.form-actions { gap: 12px; justify-content: flex-end; }
+.primary, .secondary { min-height: 48px; padding: 12px 18px; border-radius: 12px; font-weight: 800; }
+.primary { border: 1px solid var(--accent); color: white; background: var(--accent); }
+.primary:hover { background: var(--accent-dark); }
+.secondary { border: 1px solid var(--line); color: var(--ink); background: transparent; }
+.secondary:hover { background: var(--paper); }
+.footer { justify-content: space-between; gap: 14px; color: var(--muted); font-size: .72rem; }
+.text-button { padding: 5px 0; border: 0; color: var(--accent-dark); background: none; font-size: .75rem; font-weight: 800; }
+.text-button:hover { text-decoration: underline; }
+
+@media (min-width: 600px) {
+  .app-shell { padding: 28px 28px 34px; }
+  .card { max-width: 560px; padding: 28px; }
+}

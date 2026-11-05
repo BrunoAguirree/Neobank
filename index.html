@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="es-MX">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Simulación educativa de una meta de ahorro en MXN" />
+    <title>Brújula · Meta de ahorro</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="./index.html" aria-label="Brújula, inicio">brújula<span aria-hidden="true">.</span></a>
+        <span class="demo-badge">Demo mode</span>
+      </header>
+
+      <section class="trust-banner" aria-label="Aviso de simulación">
+        <span class="trust-dot" aria-hidden="true"></span>
+        <span>Demo mode · No real money or bank account</span>
+      </section>
+
+      <div id="app" class="content" aria-live="polite"></div>
+
+      <footer class="footer">
+        <button id="reset-demo" class="text-button" type="button">Reset demo</button>
+        <span>Datos ficticios guardados solo en este navegador</span>
+      </footer>
+    </main>
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>

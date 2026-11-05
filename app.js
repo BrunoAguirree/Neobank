@@ -53,12 +53,12 @@ function escapeHtml(value) {
 function renderWelcome() {
   app.innerHTML = `
     <section class="screen" aria-labelledby="welcome-title">
-      <p class="eyebrow">Tu dinero, con dirección</p>
-      <h1 id="welcome-title">Ahorra para lo que sigue.</h1>
-      <p class="lede">Una forma sencilla de visualizar cómo tus pequeñas aportaciones pueden acercarte a una meta.</p>
-      <div class="name-chip"><span class="avatar" aria-hidden="true">A</span><span>Demo de Alex · estudiante</span></div>
+      <p class="eyebrow">Give your money direction</p>
+      <h1 id="welcome-title">Save for what’s next.</h1>
+      <p class="lede">A simple way to see how small contributions can bring you closer to a goal.</p>
+      <div class="name-chip"><span class="avatar" aria-hidden="true">A</span><span>Alex’s demo · student</span></div>
       <br />
-      <button id="start-demo" class="primary" type="button">Entrar al demo</button>
+      <button id="start-demo" class="primary" type="button">Enter demo</button>
     </section>`;
   document.querySelector("#start-demo").addEventListener("click", renderGoalForm);
 }
@@ -66,23 +66,23 @@ function renderWelcome() {
 function renderGoalForm() {
   app.innerHTML = `
     <section class="screen" aria-labelledby="goal-title">
-      <p class="eyebrow">Paso 1 de 5 · Tu primera meta</p>
-      <h2 id="goal-title">¿Para qué quieres ahorrar?</h2>
-      <p class="lede">Ponle un nombre y define un objetivo. Puedes cambiarlo en otra sesión del demo.</p>
+      <p class="eyebrow">Step 1 of 5 · Your first goal</p>
+      <h2 id="goal-title">What are you saving for?</h2>
+      <p class="lede">Name it and set a target. You can change it in another demo session.</p>
       <form id="goal-form" class="card" novalidate>
         <div class="field">
-          <label for="goal-name">Nombre de la meta</label>
-          <input id="goal-name" name="goalName" type="text" maxlength="60" placeholder="Ej. Viaje de verano" autocomplete="off" required />
+          <label for="goal-name">Goal name</label>
+          <input id="goal-name" name="goalName" type="text" maxlength="60" placeholder="e.g. Summer trip" autocomplete="off" required />
         </div>
         <div class="field">
-          <label for="target-amount">Objetivo</label>
-          <p class="hint">Ingresa una cantidad positiva en pesos mexicanos.</p>
+          <label for="target-amount">Target</label>
+          <p class="hint">Enter a positive amount in Mexican pesos.</p>
           <div class="input-wrap"><span class="currency">MXN</span><input id="target-amount" name="targetAmount" inputmode="decimal" placeholder="0.00" autocomplete="off" required /></div>
         </div>
         <p id="goal-error" class="error" role="alert"></p>
         <div class="form-actions">
-          <button id="cancel-goal" class="secondary" type="button">Cancelar</button>
-          <button class="primary" type="submit">Guardar meta</button>
+          <button id="cancel-goal" class="secondary" type="button">Cancel</button>
+          <button class="primary" type="submit">Save goal</button>
         </div>
       </form>
     </section>`;
@@ -95,12 +95,12 @@ function renderGoalForm() {
     const error = document.querySelector("#goal-error");
 
     if (!name) {
-      error.textContent = "Escribe un nombre para tu meta.";
+      error.textContent = "Enter a name for your goal.";
       document.querySelector("#goal-name").focus();
       return;
     }
     if (targetCents === null) {
-      error.textContent = "Ingresa un objetivo mayor a MXN 0.00, con máximo dos decimales.";
+      error.textContent = "Enter a target greater than MXN 0.00, with no more than two decimals.";
       document.querySelector("#target-amount").focus();
       return;
     }
@@ -114,10 +114,10 @@ function renderGoalForm() {
 function renderGoalSaved() {
   app.innerHTML = `
     <section class="screen" aria-labelledby="saved-title">
-      <p class="eyebrow">Meta guardada</p>
-      <h2 id="saved-title">Tu meta ya tiene rumbo.</h2>
-      <p class="lede"><strong>${escapeHtml(state.goal.name)}</strong> · objetivo de <strong>${formatMxn(state.goal.targetCents)}</strong>.</p>
-      <div class="card"><p class="hint">Este es el siguiente slice del demo: aquí añadiremos la aportación simulada y su historial.</p></div>
+      <p class="eyebrow">Goal saved</p>
+      <h2 id="saved-title">Your goal has a direction.</h2>
+      <p class="lede"><strong>${escapeHtml(state.goal.name)}</strong> · target of <strong>${formatMxn(state.goal.targetCents)}</strong>.</p>
+      <div class="card"><p class="hint">This is the next demo slice: simulated contributions and history will appear here.</p></div>
     </section>`;
 }
 

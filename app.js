@@ -1,4 +1,5 @@
 import seed from "./seed.json" with { type: "json" };
+import { formatMxn, parseMxnToCents, sumCents } from "./money.mjs";
 
 const STORAGE_KEY = "brujula-demo-v1";
 
@@ -28,22 +29,18 @@ function saveState() {
   }
 }
 
-function parseMxnToCents(value) {
-  const normalized = String(value).trim();
-  if (!/^\d+(?:\.\d{1,2})?$/.test(normalized)) return null;
-
-  const [whole, decimal = ""] = normalized.split(".");
-  const cents = Number(whole) * 100 + Number(decimal.padEnd(2, "0"));
-  // Converts a positive MXN amount to integer cents so currency never uses binary floating-point arithmetic.
-  // The goal amount is stored this way because the demo accepts no fractional cents or rounding.
-  if (!Number.isSafeInteger(cents) || cents <= 0) return null;
-  return cents;
+function getBalanceCents() {
+  return sumCents(state.contributions.map((contribution) => contribution.amountCents)) ?? 0;
 }
 
-function formatMxn(cents) {
-  const wholePesos = Math.floor(cents / 100);
-  const fraction = String(cents % 100).padStart(2, "0");
-  return `MXN ${new Intl.NumberFormat("es-MX").format(wholePesos)}.${fraction}`;
+function getProgressPercent(balanceCents) {
+  // Computes display progress from the derived balance and target; the bar is capped at 100% while the balance remains exact.
+  // The goal progress is a visual ratio, not a monetary value, so no currency is rounded or changed here.
+  return Math.min((balanceCents * 100) / state.goal.targetCents, 100);
+}
+
+function createFolio() {
+  return `SIM-${Date.now().toString(36).toUpperCase()}-${Math.floor(Math.random() * 1000).toString().padStart(3, "0")}`;
 }
 
 function escapeHtml(value) {
@@ -112,17 +109,127 @@ function renderGoalForm() {
 }
 
 function renderGoalSaved() {
+  const balanceCents = getBalanceCents();
+  const remainingCents = Math.max(state.goal.targetCents - balanceCents, 0);
+  const progressPercent = getProgressPercent(balanceCents);
+  const history = [...state.contributions].reverse();
+
   app.innerHTML = `
     <section class="screen" aria-labelledby="saved-title">
-      <p class="eyebrow">Goal saved</p>
-      <h2 id="saved-title">Your goal has a direction.</h2>
-      <p class="lede"><strong>${escapeHtml(state.goal.name)}</strong> · target of <strong>${formatMxn(state.goal.targetCents)}</strong>.</p>
-      <div class="card"><p class="hint">This is the next demo slice: simulated contributions and history will appear here.</p></div>
+      <p class="eyebrow">Your savings goal</p>
+      <h2 id="saved-title">${escapeHtml(state.goal.name)}</h2>
+      <div class="card summary-card">
+        <div class="balance-line"><span>Simulated balance</span><strong>${formatMxn(balanceCents)}</strong></div>
+        <div class="progress-track" aria-label="${progressPercent.toFixed(1)} percent of goal complete"><span style="width: ${progressPercent}%"></span></div>
+        <div class="progress-meta"><span>${progressPercent.toFixed(1)}% complete</span><span>${formatMxn(remainingCents)} left</span></div>
+        <p class="hint">Target: ${formatMxn(state.goal.targetCents)} · No fees · No interest</p>
+      </div>
+      <div class="section-heading"><h3>Contribution history</h3><span>${history.length} ${history.length === 1 ? "entry" : "entries"}</span></div>
+      ${history.length ? `<div class="history-list">${history.map(renderContribution).join("")}</div>` : `<div class="card empty-state"><p>No contributions yet.</p><p class="hint">Add a simulated contribution to see your progress.</p></div>`}
+      <button id="add-contribution" class="primary" type="button">Add simulated contribution</button>
     </section>`;
+
+  document.querySelector("#add-contribution").addEventListener("click", renderContributionForm);
+}
+
+function renderContribution(contribution) {
+  return `<div class="history-row"><div><strong>${formatMxn(contribution.amountCents)}</strong><span>${new Date(contribution.createdAt).toLocaleString("en-MX", { dateStyle: "medium", timeStyle: "short" })}</span></div><span class="status-pill">Simulated</span></div>`;
+}
+
+function renderContributionForm() {
+  app.innerHTML = `
+    <section class="screen" aria-labelledby="contribution-title">
+      <p class="eyebrow">Step 2 of 5 · Add to your goal</p>
+      <h2 id="contribution-title">Make a little progress.</h2>
+      <p class="lede">Enter a simulated contribution. You will review the new balance before confirming.</p>
+      <form id="contribution-form" class="card" novalidate>
+        <div class="field">
+          <label for="contribution-amount">Contribution amount</label>
+          <p class="hint">This is a simulation. No money moves.</p>
+          <div class="input-wrap"><span class="currency">MXN</span><input id="contribution-amount" name="contributionAmount" inputmode="decimal" placeholder="0.00" autocomplete="off" required /></div>
+        </div>
+        <p id="contribution-error" class="error" role="alert"></p>
+        <div class="form-actions">
+          <button id="cancel-contribution" class="secondary" type="button">Cancel</button>
+          <button class="primary" type="submit">Review contribution</button>
+        </div>
+      </form>
+    </section>`;
+
+  document.querySelector("#cancel-contribution").addEventListener("click", renderGoalSaved);
+  document.querySelector("#contribution-form").addEventListener("submit", (event) => {
+    event.preventDefault();
+    const amountCents = parseMxnToCents(document.querySelector("#contribution-amount").value);
+    const error = document.querySelector("#contribution-error");
+    const projectedBalance = amountCents === null ? null : getBalanceCents() + amountCents;
+
+    if (amountCents === null || !Number.isSafeInteger(projectedBalance)) {
+      error.textContent = "Enter an amount greater than MXN 0.00, with no more than two decimals.";
+      document.querySelector("#contribution-amount").focus();
+      return;
+    }
+    renderContributionReview(amountCents, projectedBalance);
+  });
+}
+
+function renderContributionReview(amountCents, projectedBalance) {
+  app.innerHTML = `
+    <section class="screen" aria-labelledby="review-title">
+      <p class="eyebrow">Step 3 of 5 · Review</p>
+      <h2 id="review-title">Ready to add this?</h2>
+      <div class="card review-card">
+        <div class="review-row"><span>Contribution</span><strong>${formatMxn(amountCents)}</strong></div>
+        <div class="review-row"><span>Current balance</span><strong>${formatMxn(getBalanceCents())}</strong></div>
+        <div class="review-row total"><span>New simulated balance</span><strong>${formatMxn(projectedBalance)}</strong></div>
+        <div class="review-row"><span>Fees</span><strong>MXN 0.00</strong></div>
+        <p class="hint">This is a fictional local simulation. No transfer, deposit, or bank account is involved.</p>
+      </div>
+      <div class="form-actions">
+        <button id="cancel-review" class="secondary" type="button">Cancel</button>
+        <button id="confirm-contribution" class="primary" type="button">Confirm simulation</button>
+      </div>
+      <p id="review-error" class="error" role="alert"></p>
+    </section>`;
+
+  let confirmed = false;
+  document.querySelector("#cancel-review").addEventListener("click", renderContributionForm);
+  document.querySelector("#confirm-contribution").addEventListener("click", (event) => {
+    if (confirmed) return;
+    confirmed = true;
+    event.currentTarget.disabled = true;
+    event.currentTarget.textContent = "Processing…";
+
+    const contribution = { id: createFolio(), goalId: state.goal.id, amountCents, createdAt: new Date().toISOString(), status: "simulated" };
+    if (!state.contributions.some((item) => item.id === contribution.id)) {
+      state.contributions.push(contribution);
+      if (saveState()) renderContributionSuccess(contribution);
+    }
+  });
+}
+
+function renderContributionSuccess(contribution) {
+  const balanceCents = getBalanceCents();
+  const progressPercent = getProgressPercent(balanceCents);
+  app.innerHTML = `
+    <section class="screen" aria-labelledby="success-title">
+      <p class="eyebrow">Step 4 of 5 · Confirmed</p>
+      <h2 id="success-title">Contribution simulated.</h2>
+      <p class="lede">Your fictional contribution of <strong>${formatMxn(contribution.amountCents)}</strong> was added once.</p>
+      <div class="card success-card">
+        <span class="success-mark" aria-hidden="true">✓</span>
+        <p class="hint">Simulated folio</p>
+        <strong>${escapeHtml(contribution.id)}</strong>
+        <div class="balance-line"><span>New balance</span><strong>${formatMxn(balanceCents)}</strong></div>
+        <div class="progress-track" aria-label="${progressPercent.toFixed(1)} percent of goal complete"><span style="width: ${progressPercent}%"></span></div>
+        <p class="hint">${progressPercent.toFixed(1)}% of your goal · no money moved</p>
+      </div>
+      <button id="view-goal" class="primary" type="button">View goal and history</button>
+    </section>`;
+  document.querySelector("#view-goal").addEventListener("click", renderGoalSaved);
 }
 
 function renderStorageError() {
-  app.innerHTML = `<section class="screen"><div class="card"><p class="error">No fue posible acceder al almacenamiento local. Activa localStorage para continuar con el demo.</p></div></section>`;
+  app.innerHTML = `<section class="screen"><div class="card"><p class="error">Local storage is unavailable. Enable it to continue with the demo.</p></div></section>`;
 }
 
 resetButton.addEventListener("click", () => {

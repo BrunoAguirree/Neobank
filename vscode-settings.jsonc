@@ -1,0 +1,33 @@
+// FIN506 agent profile: VS Code + GitHub Copilot, autonomy dial position 2
+// Merge into Workspace Settings (JSON): Ctrl+Shift+P, "Preferences: Open Workspace Settings (JSON)"
+// Setting names move between VS Code versions. If a key shows as unknown, search
+// Settings (UI) for "terminal auto approve" and mirror these rules there.
+{
+  // Terminal commands the agent may run WITHOUT an approval card (safe categories):
+  // read-only inspection, tests, and local git bookkeeping.
+  // Regex entries are wrapped in slashes; plain entries match the command prefix.
+  "chat.tools.terminal.autoApprove": {
+    // read-only inspection
+    "/^(ls|dir|pwd|type|cat|Get-ChildItem|Get-Content)\\b/": true,
+    "/^git (status|diff|log|show)\\b/": true,
+    "node --version": true,
+    "python --version": true,
+
+    // tests and linters
+    "/^(python|py) -m (pytest|unittest)\\b/": true,
+    "/^(npm|pnpm) (test|run lint|run test)\\b/": true,
+
+    // local git bookkeeping (no publishing)
+    "/^git (add|commit|branch|checkout|restore --staged)\\b/": true,
+
+    // ALWAYS show a card for these, even if a broader rule matches
+    "/^(rm|del|rmdir|Remove-Item)\\b/": false,
+    "/^git (push|reset --hard|clean)\\b/": false,
+    "/^(curl|wget|Invoke-WebRequest|iwr|Invoke-RestMethod)\\b/": false,
+    "/^(npm|pnpm|yarn|pip|pip3|py -m pip) (i|install|add|uninstall)\\b/": false
+  }
+
+  // NOTE: there is also a global "chat.tools.autoApprove" (approve EVERYTHING).
+  // That is dial position 3. It stays OFF on your laptop; use it only inside a
+  // disposable GitHub Codespace.
+}

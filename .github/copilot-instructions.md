@@ -1,0 +1,1 @@
+Read and follow `PROJECT_METHOD.md`, root `AGENTS.md` and `SPEC.md` before planning or changing code. The five-step savings-goal demo is the sole approved flow. Respect all eight golden rules in AGENTS.md. The builder cannot edit AGENTS.md, SPEC.md, DECISIONS.md or BITACORA.md. Do not add packages. Record `TODO-verify` for any unverified regulatory or instructor-approval claim.
